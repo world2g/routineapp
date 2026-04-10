@@ -1,4 +1,6 @@
+import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
+import 'models/app_state.dart';
 import 'pages/homescreen.dart';
 import 'pages/event.dart';
 import 'pages/analytics.dart';
@@ -13,9 +15,14 @@ class RoutineApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
+    // CalendarControllerProvider makes the EventController available to all
+    // descendant widgets via CalendarControllerProvider.of(context).
+    return CalendarControllerProvider(
+      controller: AppState.controller,
+      child: const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: HomePage(),
+      ),
     );
   }
 }
@@ -53,11 +60,18 @@ class _HomePageState extends State<HomePage> {
         ),
         title: const Text("Routine Planner"),
         centerTitle: true,
-        actions: <Widget>[
+        actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none),
             onPressed: () {
-              NotificationCentre();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const Scaffold(
+                    body: NotificationCentre(),
+                  ),
+                ),
+              );
             },
           ),
           IconButton(icon: const Icon(Icons.person), onPressed: () {}),
@@ -67,6 +81,7 @@ class _HomePageState extends State<HomePage> {
       body: pages[currentPageIndex],
 
       bottomNavigationBar: NavigationBar(
+        selectedIndex: currentPageIndex,
         onDestinationSelected: (int index) {
           setState(() {
             currentPageIndex = index;
@@ -80,10 +95,12 @@ class _HomePageState extends State<HomePage> {
           ),
           NavigationDestination(
             icon: Icon(Icons.add_circle_outline),
+            selectedIcon: Icon(Icons.add_circle),
             label: "Add Task",
           ),
           NavigationDestination(
             icon: Icon(Icons.analytics_outlined),
+            selectedIcon: Icon(Icons.analytics),
             label: "Analytics",
           ),
         ],
