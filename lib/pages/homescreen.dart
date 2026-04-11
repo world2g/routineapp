@@ -147,7 +147,7 @@ class _ScheduleSectionState extends State<ScheduleSection> {
         // Listen to completedEvents so ticking "done" refreshes the list
         ValueListenableBuilder<Set<String>>(
           valueListenable: AppState.completedEvents,
-          builder: (context, _, __) {
+          builder: (context, _, _) {
             final events = _eventsForDay(controller);
 
             if (events.isEmpty) {
@@ -177,7 +177,7 @@ class _ScheduleSectionState extends State<ScheduleSection> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: events.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 return ScheduleItem(event: events[index]);
               },

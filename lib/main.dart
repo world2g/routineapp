@@ -43,42 +43,49 @@ class _HomePageState extends State<HomePage> {
     AnalyticsScreen(),
   ];
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-              tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-            );
-          },
-        ),
+      appBar:AppBar(
         title: const Text("Routine Planner"),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const Scaffold(
-                    body: NotificationCentre(),
-                  ),
-                ),
-              );
-            },
-          ),
-          IconButton(icon: const Icon(Icons.person), onPressed: () {}),
-        ],
       ),
 
       body: pages[currentPageIndex],
+
+      drawer: Drawer(
+        child: ListView(
+          children:<Widget>[
+            const DrawerHeader(
+              child: Center(
+                child: Text('Settings')
+              )
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications_none),
+              title: const Text('Notification Centre'),
+              onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const Scaffold(body: NotificationCentre()),
+                ),
+              );
+            },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Account Settings'),
+              onTap: () {}
+            ),
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () {Navigator.of(context).pop();},
+            )
+          ]
+        )
+      ),
 
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,
