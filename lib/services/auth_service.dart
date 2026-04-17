@@ -1,5 +1,3 @@
-// lib/services/auth_service.dart
-//
 // Talks to your Django REST Framework backend.
 // Expected Django endpoints:
 //   POST /api/auth/register/  → { id, username, email, token }
@@ -52,7 +50,7 @@ class AuthService {
     throw AuthException(error);
   }
 
-  // ── Login ───────────────────────────────────────────────────────────────────
+  // ── Login 
   Future<AppUser> login({
     required String username,
     required String password,
@@ -73,7 +71,7 @@ class AuthService {
     throw AuthException(_extractError(response.body));
   }
 
-  // ── Logout ──────────────────────────────────────────────────────────────────
+  // ── Logout 
   Future<void> logout(String token) async {
     try {
       await http.post(
@@ -89,7 +87,7 @@ class AuthService {
     await _clearSession();
   }
 
-  // ── Restore session on app start ────────────────────────────────────────────
+  // ── Restore session on app start 
   Future<AppUser?> getSavedUser() async {
     final prefs = await SharedPreferences.getInstance();
     final token    = prefs.getString(_keyToken);
@@ -104,11 +102,11 @@ class AuthService {
     return AppUser(id: userId, username: username, email: email, token: token);
   }
 
-  // ── Helpers ─────────────────────────────────────────────────────────────────
+  // ── Helpers 
   Future<void> _saveSession(AppUser user) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyToken,    user.token);
-    await prefs.setInt   (_keyUserId,   user.id);
+    await prefs.setInt(_keyUserId,   user.id);
     await prefs.setString(_keyUsername, user.username);
     await prefs.setString(_keyEmail,    user.email);
   }

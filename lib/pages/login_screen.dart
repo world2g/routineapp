@@ -1,5 +1,3 @@
-// lib/pages/login_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
@@ -49,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // ── Logo / Title ───────────────────────────────────────────
+                  // ── Logo / Title 
                   Icon(Icons.watch, size: 64, color: theme.colorScheme.primary),
                   const SizedBox(height: 16),
                   Text(
@@ -59,17 +57,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Sign in to continue',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey,
-                    ),
-                  ),
                   const SizedBox(height: 40),
 
-                  // ── Error banner ───────────────────────────────────────────
+                  // ── Error banner 
                   if (provider.error != null) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -86,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                   ],
 
-                  // ── Username ───────────────────────────────────────────────
+                  // ── Username 
                   TextFormField(
                     controller:     _usernameCtrl,
                     textInputAction: TextInputAction.next,
@@ -123,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 28),
 
-                  // ── Submit button ──────────────────────────────────────────
+                  // ── Submit button 
                   FilledButton(
                     onPressed: provider.isLoading ? null : _submit,
                     style: FilledButton.styleFrom(
@@ -139,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // ── Register link ──────────────────────────────────────────
+                  // ── Register link 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

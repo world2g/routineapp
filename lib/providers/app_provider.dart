@@ -18,14 +18,14 @@ class AppProvider extends ChangeNotifier {
   final DatabaseService _db    = DatabaseService();
   final MqttService     _mqtt  = MqttService();
 
-  // ── State ──────────────────────────────────────────────────────────────────
+  // ── State 
   AppUser?     _user;
   List<Task>   _tasks     = [];
   WatchStatus  _watchStatus = WatchStatus.disconnected;
   bool         _isLoading = false;
   String?      _error;
 
-  // ── Getters ────────────────────────────────────────────────────────────────
+  // ── Getters 
   AppUser?    get user        => _user;
   List<Task>  get tasks       => List.unmodifiable(_tasks);
   WatchStatus get watchStatus => _watchStatus;
@@ -35,7 +35,7 @@ class AppProvider extends ChangeNotifier {
 
   String get todayDate => DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-  // ── Bootstrap (called from main.dart on startup) ───────────────────────────
+  // ── Bootstrap (called from main.dart on startup) 
   Future<void> init() async {
     _setLoading(true);
     _user = await _auth.getSavedUser();
@@ -45,7 +45,7 @@ class AppProvider extends ChangeNotifier {
     _setLoading(false);
   }
 
-  // ── Auth ───────────────────────────────────────────────────────────────────
+  // ── Auth 
   Future<void> register({
     required String username,
     required String email,
@@ -90,7 +90,7 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── Tasks ──────────────────────────────────────────────────────────────────
+  // ── Tasks 
   Future<void> loadTodayTasks() async {
     if (_user == null) return;
     await _db.syncFromServer(
@@ -135,7 +135,7 @@ class AppProvider extends ChangeNotifier {
     _mqtt.publishTasks(_tasks, todayDate);
   }
 
-  // ── Private ────────────────────────────────────────────────────────────────
+  // ── Private 
   Future<void> _afterLogin() async {
     await loadTodayTasks();
     await _connectMqtt();
