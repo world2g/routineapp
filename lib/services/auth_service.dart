@@ -48,6 +48,8 @@ class AuthService {
     // Surface the Django validation error to the UI
     final error = _extractError(response.body);
     throw AuthException(error);
+
+    
   }
 
   // ── Login 

@@ -8,10 +8,11 @@ import 'pages/notifications.dart';
 import 'pages/login_screen.dart';
 import 'pages/account.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     ChangeNotifierProvider(
-      create: (_) => AppProvider()..init(), // restore session on launch
+      create: (_) => AppProvider()..init(),
       child: const RoutineApp(),
     ),
   );
@@ -22,46 +23,31 @@ class RoutineApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<AppProvider>();
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // title: 'Routine Planner',
-      // theme: ThemeData(
-      //   colorSchemeSeed: Colors.blueGrey,
-      //   useMaterial3:    true,
-      // ),
-      // AuthGate decides whether to show the login page or the app
-      home: provider.isLoggedIn
-            ? const HomePage()
-            : const LoginScreen()
+      title: 'Routine Planner',
+      theme: ThemeData(colorSchemeSeed: Colors.blueGrey, useMaterial3: true),
+      home: const AuthGate(),
     );
   }
 }
 
-// ── Auth gate
-// Shows a splash/loading screen while restoring the session, then routes to
-// LoginScreen or HomePage depending on whether a user is already signed in.
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
 
-// class AuthGate extends StatelessWidget {
-//   const AuthGate({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<AppProvider>();
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final provider = context.watch<AppProvider>();
+    if (provider.isLoading && !provider.isLoggedIn) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
-//     if (provider.isLoading) {
-//       return const Scaffold(body: Center(child: CircularProgressIndicator()));
-//     }
+    if (!provider.isLoggedIn) return const LoginScreen();
 
-//     if (!provider.isLoggedIn) {
-//       return const LoginScreen();
-//     }
-    
-//   }
-// }
-
-// ── Main scaffold
+    return const HomePage();
+  }
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -84,16 +70,12 @@ class _HomePageState extends State<HomePage> {
     final provider = context.watch<AppProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Routine Planner'),
-        centerTitle:true,
-        ),
+      appBar: AppBar(title: const Text('Routine Planner'), centerTitle: true),
       drawer: Drawer(
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-
               // ── Header ──
               Container(
                 padding: const EdgeInsets.all(16),
@@ -119,7 +101,9 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const NotificationCentre()),
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationCentre(),
+                    ),
                   );
                 },
               ),
@@ -161,8 +145,10 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
 
+
       body: _pages[_currentIndex],
 
+      
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (i) => setState(() => _currentIndex = i),

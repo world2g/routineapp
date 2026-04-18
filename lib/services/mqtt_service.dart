@@ -1,19 +1,3 @@
-// Connects to your Mosquitto broker and keeps the watch in sync.
-//
-// Topic layout (all scoped to the logged-in user):
-//
-//   routine/user/<userId>/tasks      ← app PUBLISHES today's task list (JSON)
-//   routine/user/<userId>/task/done  ← watch PUBLISHES task id when completed
-//   routine/user/<userId>/sync       ← app PUBLISHES "sync" to request the
-//                                       watch to refresh its display
-//   routine/watch/status             ← watch PUBLISHES its connection status
-//
-// Payload for the tasks topic:
-//   { "date": "yyyy-MM-dd", "tasks": [{ "id": 1, "time": "08:00", "title": "..." }, ...] }
-//
-// Payload for the done topic:
-//   { "task_id": 1 }
-
 import 'dart:async';
 import 'dart:convert';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -23,10 +7,8 @@ import '../models/task.dart';
 enum WatchStatus { disconnected, connecting, connected }
 
 class MqttService {
-  // ── Change to your Mosquitto broker address ──────────────────────────────
   static const String _broker = '192.168.1.100';
   static const int    _port   = 1883;
-  // ─────────────────────────────────────────────────────────────────────────
 
   MqttServerClient? _client;
   int? _userId;
@@ -34,25 +16,23 @@ class MqttService {
   WatchStatus _watchStatus = WatchStatus.disconnected;
   WatchStatus get watchStatus => _watchStatus;
 
-  // Callbacks the AppProvider (or UI) can listen to
   void Function(WatchStatus)? onWatchStatusChanged;
-  void Function(int taskId)? onTaskDoneFromWatch;
+  void Function(int taskId)?  onTaskDoneFromWatch;
 
-  // ── Connect ──────────────────────────────────────────────────────────────
   Future<bool> connect(int userId) async {
-    _userId = userId;
+    _userId      = userId;
     _watchStatus = WatchStatus.connecting;
     onWatchStatusChanged?.call(_watchStatus);
 
     final clientId = 'routine_app_${userId}_${DateTime.now().millisecondsSinceEpoch}';
     _client = MqttServerClient(_broker, clientId)
-      ..port               = _port
-      ..keepAlivePeriod    = 30
+      ..port                 = _port
+      ..keepAlivePeriod      = 30
       ..connectTimeoutPeriod = 5000
       ..logging(on: false)
-      ..onDisconnected       = _onDisconnected
-      ..onConnected          = _onConnected
-      ..onSubscribed         = _onSubscribed;
+      ..onDisconnected  = _onDisconnected
+      ..onConnected     = _onConnected
+      ..onSubscribed    = _onSubscribed;
 
     _client!.connectionMessage = MqttConnectMessage()
         .withClientIdentifier(clientId)
@@ -64,7 +44,7 @@ class MqttService {
     try {
       await _client!.connect();
     } catch (e) {
-      _client!.disconnect();
+      try { _client!.disconnect(); } catch (_) {}
       _watchStatus = WatchStatus.disconnected;
       onWatchStatusChanged?.call(_watchStatus);
       return false;
@@ -76,22 +56,17 @@ class MqttService {
       return false;
     }
 
-    // Subscribe to watch status & task-done topics
     _subscribe('routine/watch/status');
     _subscribe('routine/user/$userId/task/done');
-
-    // Listen to all incoming messages
     _client!.updates!.listen(_onMessage);
 
     return true;
   }
 
-  // ── Disconnect ───────────────────────────────────────────────────────────
   void disconnect() {
     _client?.disconnect();
   }
 
-  // ── Publish today's tasks to the watch ──────────────────────────────────
   void publishTasks(List<Task> tasks, String date) {
     if (_client == null ||
         _client!.connectionStatus!.state != MqttConnectionState.connected) {
@@ -99,7 +74,7 @@ class MqttService {
     }
 
     final payload = jsonEncode({
-      'date': date,
+      'date':  date,
       'tasks': tasks
           .map((t) => {'id': t.id, 'time': t.time, 'title': t.title})
           .toList(),
@@ -108,12 +83,10 @@ class MqttService {
     _publish('routine/user/$_userId/tasks', payload, retain: true);
   }
 
-  /// Tell the watch to refresh its display.
   void requestSync() {
     _publish('routine/user/$_userId/sync', 'sync');
   }
 
-  // ── Private helpers ──────────────────────────────────────────────────────
   void _subscribe(String topic) {
     _client!.subscribe(topic, MqttQos.atLeastOnce);
   }
@@ -136,11 +109,9 @@ class MqttService {
       );
 
       if (topic == 'routine/watch/status') {
-        if (payload == 'online') {
-          _watchStatus = WatchStatus.connected;
-        } else {
-          _watchStatus = WatchStatus.disconnected;
-        }
+        _watchStatus = payload == 'online'
+            ? WatchStatus.connected
+            : WatchStatus.disconnected;
         onWatchStatusChanged?.call(_watchStatus);
       }
 
@@ -154,8 +125,8 @@ class MqttService {
     }
   }
 
-  void _onConnected()  {}
-  void _onDisconnected() {
+  void _onConnected()              {}
+  void _onDisconnected()           {
     _watchStatus = WatchStatus.disconnected;
     onWatchStatusChanged?.call(_watchStatus);
   }
