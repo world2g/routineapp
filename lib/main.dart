@@ -8,12 +8,12 @@ import 'pages/event.dart';
 import 'pages/analytics.dart';
 import 'pages/notifications.dart';
 import 'pages/login_screen.dart';
+import 'pages/account.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppProvider()..init(),
@@ -56,53 +56,110 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-  static const List<Widget> _pages = [HomeScreen(), AddTaskScreen(), AnalyticsScreen()];
+  static const List<Widget> _pages = [
+    HomeScreen(),
+    AddTaskScreen(),
+    AnalyticsScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Routine Planner'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none),
-            onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const NotificationCentre())),
-          ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.person_outline),
-            onSelected: (value) {
-              if (value == 'logout') context.read<AppProvider>().logout();
-            },
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                enabled: false,
-                child: Text(provider.user?.username ?? '',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
+      appBar: AppBar(title: Text('Routine Planner'), centerTitle: true),
+      drawer: Drawer(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ── Header ──
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: Colors.blueGrey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.person, size: 40, color: Colors.white),
+                    const SizedBox(height: 10),
+                    Text(
+                      provider.user?.username ?? "User",
+                      style: const TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ],
+                ),
               ),
-              const PopupMenuDivider(),
-              const PopupMenuItem(
-                value: 'logout',
-                child: Row(children: [
-                  Icon(Icons.logout, size: 18),
-                  SizedBox(width: 8),
-                  Text('Logout'),
-                ]),
+
+              // ── Menu Items ──
+              ListTile(
+                leading: const Icon(Icons.notifications_outlined),
+                title: const Text("Notifications"),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationCentre(),
+                    ),
+                  );
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.person_outline),
+                title: const Text("Account"),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AccountCentre()),
+                  );
+                },
+              ),
+
+              const Spacer(),
+
+              // ── Logout ──
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text("Logout"),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.read<AppProvider>().logout();
+                },
+              ),
+
+              // ── Close Button ──
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Close"),
+                ),
               ),
             ],
           ),
-        ],
+        ),
       ),
+
       body: _pages[_currentIndex],
+
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (i) => setState(() => _currentIndex = i),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.add_circle_outline), label: 'Add Task'),
-          NavigationDestination(icon: Icon(Icons.analytics_outlined), label: 'Analytics'),
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.add_circle_outline),
+            label: 'Add Task',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.analytics_outlined),
+            label: 'Analytics',
+          ),
         ],
       ),
     );
