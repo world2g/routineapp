@@ -29,7 +29,7 @@ class MqttService {
   // ─────────────────────────────────────────────────────────────────────────
 
   MqttServerClient? _client;
-  int? _userId;
+  String? _userId;
 
   WatchStatus _watchStatus = WatchStatus.disconnected;
   WatchStatus get watchStatus => _watchStatus;
@@ -39,7 +39,7 @@ class MqttService {
   void Function(int taskId)? onTaskDoneFromWatch;
 
   // ── Connect ──────────────────────────────────────────────────────────────
-  Future<bool> connect(int userId) async {
+  Future<bool> connect(String userId) async {
     _userId = userId;
     _watchStatus = WatchStatus.connecting;
     onWatchStatusChanged?.call(_watchStatus);

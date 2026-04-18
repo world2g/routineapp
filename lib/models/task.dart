@@ -1,74 +1,48 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Task {
-  final int? id;
-  final int userId;
-  final String title;
-  final String time;   // "HH:mm"  e.g. "08:00"
-  final String date;   // "yyyy-MM-dd"
-  final bool isDone;
+  final String? id;
+  final String  userId;
+  final String  title;
+  final String  time;
+  final String  date;
+  final bool    isDone;
 
-  const Task({
-    this.id,
-    required this.userId,
-    required this.title,
-    required this.time,
-    required this.date,
-    this.isDone = false,
-  });
+  const Task({this.id, required this.userId, required this.title,
+      required this.time, required this.date, this.isDone = false});
 
-  Task copyWith({
-    int? id,
-    int? userId,
-    String? title,
-    String? time,
-    String? date,
-    bool? isDone,
-  }) =>
+  Task copyWith({String? id, String? userId, String? title,
+      String? time, String? date, bool? isDone}) =>
       Task(
-        id: id ?? this.id,
+        id:     id     ?? this.id,
         userId: userId ?? this.userId,
-        title: title ?? this.title,
-        time: time ?? this.time,
-        date: date ?? this.date,
+        title:  title  ?? this.title,
+        time:   time   ?? this.time,
+        date:   date   ?? this.date,
         isDone: isDone ?? this.isDone,
       );
 
-  // ── SQLite ──────────────────────────────────────────────────────────────────
-  Map<String, dynamic> toMap() => {
-        'id': id,
-        'user_id': userId,
-        'title': title,
-        'time': time,
-        'date': date,
-        'is_done': isDone ? 1 : 0,
+  factory Task.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return Task(
+      id:     doc.id,
+      userId: data['userId'] as String,
+      title:  data['title']  as String,
+      time:   data['time']   as String,
+      date:   data['date']   as String,
+      isDone: data['isDone'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toFirestore() => {
+        'userId': userId, 'title': title, 'time': time,
+        'date': date, 'isDone': isDone,
       };
 
-  factory Task.fromMap(Map<String, dynamic> m) => Task(
-        id: m['id'] as int?,
-        userId: m['user_id'] as int,
-        title: m['title'] as String,
-        time: m['time'] as String,
-        date: m['date'] as String,
-        isDone: (m['is_done'] as int) == 1,
-      );
-
-  // ── JSON (Django API / MQTT payload) ────────────────────────────────────────
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'user_id': userId,
-        'title': title,
-        'time': time,
-        'date': date,
-        'is_done': isDone,
+        'id': id, 'userId': userId, 'title': title,
+        'time': time, 'date': date, 'isDone': isDone,
       };
-
-  factory Task.fromJson(Map<String, dynamic> j) => Task(
-        id: j['id'] as int?,
-        userId: j['user_id'] as int,
-        title: j['title'] as String,
-        time: j['time'] as String,
-        date: j['date'] as String,
-        isDone: j['is_done'] as bool? ?? false,
-      );
 
   @override
   String toString() => 'Task(id: $id, title: $title, time: $time, date: $date, done: $isDone)';

@@ -11,23 +11,22 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey         = GlobalKey<FormState>();
-  final _usernameCtrl    = TextEditingController();
-  final _passwordCtrl    = TextEditingController();
-  bool _obscurePassword  = true;
+  final _formKey       = GlobalKey<FormState>();
+  final _emailCtrl     = TextEditingController();
+  final _passwordCtrl  = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _usernameCtrl.dispose();
+    _emailCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final provider = context.read<AppProvider>();
-    await provider.login(
-      username: _usernameCtrl.text.trim(),
+    await context.read<AppProvider>().login(
+      email:    _emailCtrl.text.trim(),
       password: _passwordCtrl.text,
     );
   }
@@ -47,54 +46,58 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // ── Logo / Title 
                   Icon(Icons.watch, size: 64, color: theme.colorScheme.primary),
                   const SizedBox(height: 16),
                   Text(
                     'Routine Planner',
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: theme.textTheme.headlineMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Sign in to continue',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: Colors.grey),
                   ),
                   const SizedBox(height: 40),
 
-                  // ── Error banner 
                   if (provider.error != null) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade50,
+                        color:        Colors.red.shade50,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.shade200),
+                        border:       Border.all(color: Colors.red.shade200),
                       ),
-                      child: Text(
-                        provider.error!,
-                        style: TextStyle(color: Colors.red.shade700),
-                      ),
+                      child: Text(provider.error!,
+                          style: TextStyle(color: Colors.red.shade700)),
                     ),
                     const SizedBox(height: 16),
                   ],
 
-                  // ── Username 
                   TextFormField(
-                    controller:     _usernameCtrl,
+                    controller:      _emailCtrl,
+                    keyboardType:    TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(
-                      labelText:   'Username',
-                      prefixIcon:  Icon(Icons.person_outline),
-                      border:      OutlineInputBorder(),
+                      labelText:  'Email',
+                      prefixIcon: Icon(Icons.email_outlined),
+                      border:     OutlineInputBorder(),
                     ),
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Enter your username' : null,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return 'Enter your email';
+                      if (!v.contains('@')) return 'Enter a valid email';
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 16),
 
-                  // ── Password ───────────────────────────────────────────────
                   TextFormField(
-                    controller:      _passwordCtrl,
-                    obscureText:     _obscurePassword,
-                    textInputAction: TextInputAction.done,
+                    controller:       _passwordCtrl,
+                    obscureText:      _obscurePassword,
+                    textInputAction:  TextInputAction.done,
                     onFieldSubmitted: (_) => _submit(),
                     decoration: InputDecoration(
                       labelText:  'Password',
@@ -113,33 +116,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 28),
 
-                  // ── Submit button 
                   FilledButton(
                     onPressed: provider.isLoading ? null : _submit,
                     style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
+                        padding: const EdgeInsets.symmetric(vertical: 16)),
                     child: provider.isLoading
                         ? const SizedBox(
-                            height: 20,
-                            width:  20,
-                            child:  CircularProgressIndicator(strokeWidth: 2),
-                          )
+                            height: 20, width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2))
                         : const Text('Sign In', style: TextStyle(fontSize: 16)),
                   ),
                   const SizedBox(height: 16),
 
-                  // ── Register link 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text("Don't have an account? "),
                       TextButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const RegisterScreen()),
-                        ),
+                        onPressed: () => Navigator.push(context,
+                            MaterialPageRoute(
+                                builder: (_) => const RegisterScreen())),
                         child: const Text('Register'),
                       ),
                     ],

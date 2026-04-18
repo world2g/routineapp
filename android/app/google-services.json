@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "149886594297",
+    "project_id": "routine-app-project-1b021",
+    "storage_bucket": "routine-app-project-1b021.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149886594297:android:21798ff546d7f0ce83c628",
+        "android_client_info": {
+          "package_name": "com.example.routineapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149886594297-25o498bm7b18uva56409o6ssfa5qi6ec.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2GtZD5InbBG1VmautTh2_M88QfMj4zfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "149886594297-25o498bm7b18uva56409o6ssfa5qi6ec.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "149886594297-7ircia8jra0nuk7tnhf8u4e3cuh287uf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "routine-planner"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149886594297:android:73ac4ef70dd215e083c628",
+        "android_client_info": {
+          "package_name": "routine.planner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149886594297-25o498bm7b18uva56409o6ssfa5qi6ec.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2GtZD5InbBG1VmautTh2_M88QfMj4zfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "149886594297-25o498bm7b18uva56409o6ssfa5qi6ec.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "149886594297-7ircia8jra0nuk7tnhf8u4e3cuh287uf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "routine-planner"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

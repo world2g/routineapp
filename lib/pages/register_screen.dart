@@ -34,7 +34,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       email:    _emailCtrl.text.trim(),
       password: _passwordCtrl.text,
     );
-    // If successful the root widget rebuilds and shows HomePage
+    if (context.mounted && provider.isLoggedIn) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
   }
 
   @override
@@ -52,11 +54,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Get started',
-                  style: theme.textTheme.headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
+                Text('Get started',
+                    style: theme.textTheme.headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text('Create your account to manage routines.',
                     style: theme.textTheme.bodyMedium
@@ -67,9 +67,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color:  Colors.red.shade50,
+                      color:        Colors.red.shade50,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red.shade200),
+                      border:       Border.all(color: Colors.red.shade200),
                     ),
                     child: Text(provider.error!,
                         style: TextStyle(color: Colors.red.shade700)),
@@ -77,7 +77,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 16),
                 ],
 
-                // Username
                 TextFormField(
                   controller:      _usernameCtrl,
                   textInputAction: TextInputAction.next,
@@ -92,7 +91,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Email
                 TextFormField(
                   controller:      _emailCtrl,
                   keyboardType:    TextInputType.emailAddress,
@@ -110,7 +108,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Password
                 TextFormField(
                   controller:      _passwordCtrl,
                   obscureText:     _obscurePassword,
@@ -133,23 +130,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Confirm password
                 TextFormField(
-                  controller:      _confirmCtrl,
-                  obscureText:     _obscurePassword,
-                  textInputAction: TextInputAction.done,
+                  controller:       _confirmCtrl,
+                  obscureText:      _obscurePassword,
+                  textInputAction:  TextInputAction.done,
                   onFieldSubmitted: (_) => _submit(),
                   decoration: const InputDecoration(
                     labelText:  'Confirm Password',
                     prefixIcon: Icon(Icons.lock_outline),
                     border:     OutlineInputBorder(),
-                    // suffixIcon: IconButton(
-                    //   icon: Icon(_obscurePassword
-                    //       ? Icons.visibility_off_outlined
-                    //       : Icons.visibility_outlined),
-                    //   onPressed: () =>
-                    //       setState(() => _obscurePassword = !_obscurePassword),
-                    // ),
                   ),
                   validator: (v) => v != _passwordCtrl.text
                       ? 'Passwords do not match'
@@ -163,10 +152,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 16)),
                   child: provider.isLoading
                       ? const SizedBox(
-                          height: 20,
-                          width:  20,
-                          child:  CircularProgressIndicator(strokeWidth: 2),
-                        )
+                          height: 20, width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2))
                       : const Text('Create Account',
                           style: TextStyle(fontSize: 16)),
                 ),

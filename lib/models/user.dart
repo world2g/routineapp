@@ -1,27 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
 class AppUser {
-  final int id;
+  final String id;
   final String username;
   final String email;
-  final String token; // Django REST auth token
 
-  const AppUser({
-    required this.id,
-    required this.username,
-    required this.email,
-    required this.token,
-  });
+  const AppUser({required this.id, required this.username, required this.email});
 
-  factory AppUser.fromJson(Map<String, dynamic> j) => AppUser(
-        id: j['id'] as int,
-        username: j['username'] as String,
-        email: j['email'] as String,
-        token: j['token'] as String,
+  factory AppUser.fromFirebase(User user) => AppUser(
+        id:       user.uid,
+        username: user.displayName ?? user.email!.split('@').first,
+        email:    user.email!,
       );
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'username': username,
-        'email': email,
-        'token': token,
-      };
 }
