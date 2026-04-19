@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
  
 class Task {
-  final String? id;
+  final String? taskId;
   final String  userId;
   final String  title;
   final String  startTime;   // "HH:mm"
@@ -12,7 +12,7 @@ class Task {
   final String? frequency;   // 'daily' | 'weekdays' | 'weekly' | 'monthly'
  
   const Task({
-    this.id,
+    this.taskId,
     required this.userId,
     required this.title,
     required this.startTime,
@@ -35,7 +35,7 @@ class Task {
     String? frequency,
   }) =>
       Task(
-        id:          id          ?? this.id,
+        taskId:          id          ?? this.taskId,
         userId:      userId      ?? this.userId,
         title:       title       ?? this.title,
         startTime:   startTime   ?? this.startTime,
@@ -50,7 +50,7 @@ class Task {
   factory Task.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Task(
-      id:          doc.id,
+      taskId:          doc.id,
       userId:      data['userId']      as String,
       title:       data['title']       as String,
       startTime:   data['startTime']   as String,
@@ -75,7 +75,7 @@ class Task {
  
   // ── MQTT payload ────────────────────────────────────────────────────────────
   Map<String, dynamic> toJson() => {
-        'id':          id,
+        'id':          taskId,
         'title':       title,
         'startTime':   startTime,
         'endTime':     endTime,
@@ -87,6 +87,6 @@ class Task {
  
   @override
   String toString() =>
-      'Task(id: $id, title: $title, $startTime–$endTime, date: $date, done: $isDone)';
+      'Task(id: $taskId, title: $title, $startTime–$endTime, date: $date, done: $isDone)';
 }
  

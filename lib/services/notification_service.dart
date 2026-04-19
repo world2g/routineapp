@@ -1,94 +1,102 @@
 // lib/services/notification_service.dart
-//
-// Schedules a local push notification for the endTime of each task.
-// If the task is completed before its endTime the notification is cancelled.
-//
-// Android setup required:
-//   • Add SCHEDULE_EXACT_ALARM permission to AndroidManifest.xml
-//   • Add USE_EXACT_ALARM for Android 13+ (targetSdkVersion 33+)
-//
-// iOS setup required:
-//   • Add notification permissions to Info.plist
- 
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../models/task.dart';
- 
+
 class NotificationService {
-  static final _plugin = FlutterLocalNotificationsPlugin();
- 
-  static const _channelId   = 'task_reminders';
-  static const _channelName = 'Task Reminders';
- 
-  // ── Init (call once from main.dart before runApp) ───────────────────────────
+  static final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
+
+  static const String _channelId = 'task_reminders';
+  static const String _channelName = 'Task Reminders';
+
+  // ── Init ────────────────────────────────────────────────────────────────
   static Future<void> init() async {
     tz.initializeTimeZones();
- 
+
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const ios     = DarwinInitializationSettings(
-      requestAlertPermission: false, // request at runtime instead
+    const ios = DarwinInitializationSettings(
+      requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
     );
- 
+
     await _plugin.initialize(
-      settings: const InitializationSettings(android: android, iOS: ios) 
+      settings: const InitializationSettings(android: android, iOS: ios),
     );
- 
-    // Request permissions
+
+    // Request Android permissions
     await _plugin
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.requestNotificationsPermission();
- 
+
+    // Request iOS permissions
     await _plugin
         .resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin>()
         ?.requestPermissions(alert: true, badge: true, sound: true);
   }
- 
-  // ── Schedule ────────────────────────────────────────────────────────────────
+
+  // ── Schedule Notification ───────────────────────────────────────────────
   static Future<void> scheduleTaskReminder(Task task) async {
+    // Ensure valid ID
+    if (task.taskId == null) return;
+
     final scheduled = _taskEndDateTime(task);
     if (scheduled == null) return;
+
+    // Do not schedule past notifications
     if (scheduled.isBefore(tz.TZDateTime.now(tz.local))) return;
- 
+
     await _plugin.zonedSchedule(
-      _id(task.id!),
-      'Task not completed',
-      '${task.title} was due at ${task.endTime}',
-      scheduled,
-      const NotificationDetails(
+      id: _generateId(task.taskId!),
+      title: 'Task not completed',
+      body: '${task.title} was due at ${task.endTime}',
+      scheduledDate: scheduled,
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           _channelId,
           _channelName,
           channelDescription: 'Reminders for overdue tasks',
           importance: Importance.high,
-          priority:   Priority.high,
+          priority: Priority.high,
         ),
         iOS: DarwinNotificationDetails(),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
- 
-  // ── Cancel ──────────────────────────────────────────────────────────────────
-  static Future<void> cancelTaskReminder(String taskId) async {
-    await _plugin.cancel(_id(taskId));
+
+  // ── Cancel Notification ─────────────────────────────────────────────────
+  static Future<void> cancelTaskReminder(String? taskId) async {
+    if (taskId == null) return;
+    await _plugin.cancel(
+      id: _generateId(taskId)
+    );
   }
- 
+
   static Future<void> cancelAll() async {
     await _plugin.cancelAll();
   }
- 
-  // ── Helpers ─────────────────────────────────────────────────────────────────
-  static int _id(String taskId) => taskId.hashCode & 0x7FFFFFFF;
- 
+
+  // ── Helpers ─────────────────────────────────────────────────────────────
+
+  /// Deterministic ID generator (stable across sessions)
+  static int _generateId(String taskId) {
+    return taskId.codeUnits.fold(0, (sum, unit) => sum + unit);
+  }
+
+  /// Converts Task date + endTime → TZDateTime
   static tz.TZDateTime? _taskEndDateTime(Task task) {
     try {
-      final dateParts = task.date.split('-');
-      final timeParts = task.endTime.split(':');
+      final dateParts = task.date.split('-');   // yyyy-MM-dd
+      final timeParts = task.endTime.split(':'); // HH:mm
+
+      if (dateParts.length != 3 || timeParts.length != 2) return null;
+
       return tz.TZDateTime(
         tz.local,
         int.parse(dateParts[0]),

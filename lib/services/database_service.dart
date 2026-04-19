@@ -37,8 +37,8 @@ class DatabaseService {
   }
  
   Future<void> updateTask(Task task) async {
-    if (task.id == null) return;
-    await _tasksRef(task.userId).doc(task.id).update(task.toFirestore());
+    if (task.taskId == null) return;
+    await _tasksRef(task.userId).doc(task.taskId).update(task.toFirestore());
   }
  
   Future<void> deleteTask(String userId, String taskId) async {
