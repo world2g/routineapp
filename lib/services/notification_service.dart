@@ -33,7 +33,7 @@ class NotificationService {
     );
  
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      settings: const InitializationSettings(android: android, iOS: ios) 
     );
  
     // Request permissions
@@ -102,4 +102,3 @@ class NotificationService {
     }
   }
 }
- 
