@@ -23,6 +23,17 @@ class AccountCentre extends StatelessWidget {
 
             const SizedBox(height: 20),
 
+            const Center(
+              child: Card(
+                child: Column(
+                  children: <Widget>[
+                    Icon(Icons.person, size: 50, color: Colors.white),
+
+                    
+                  ],
+                ),
+              )
+            ),
             ListTile(
               leading: const Icon(Icons.person),
               title: Text(provider.user?.username ?? ""),
@@ -53,7 +64,7 @@ class AccountCentre extends StatelessWidget {
               label: const Text("Delete Account"),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () {
-                // TODO: implement delete logic
+                
               },
             ),
           ],

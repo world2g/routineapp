@@ -6,10 +6,8 @@ import 'providers/app_provider.dart';
 import 'pages/homescreen.dart';
 import 'pages/event.dart';
 import 'pages/analytics.dart';
-import 'pages/notifications.dart';
 import 'pages/login_screen.dart';
 import 'pages/account.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,6 +60,8 @@ class _HomePageState extends State<HomePage> {
     AnalyticsScreen(),
   ];
 
+  bool _lights = false;
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
@@ -90,23 +90,20 @@ class _HomePageState extends State<HomePage> {
               ),
 
               // ── Menu Items ──
-              ListTile(
-                leading: const Icon(Icons.notifications_outlined),
-                title: const Text("Notifications"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const NotificationCentre(),
-                    ),
-                  );
+              SwitchListTile(
+                title: const Text('Notifications'),
+                value: _lights,
+                onChanged: (bool value) {
+                  setState(() {
+                    _lights = value;
+                  });
                 },
+                secondary: const Icon(Icons.notifications_none),
               ),
 
               ListTile(
                 leading: const Icon(Icons.person_outline),
-                title: const Text("Account"),
+                title: const Text("Account Settings"),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -116,19 +113,6 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
 
-              const Spacer(),
-
-              // ── Logout ──
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text("Logout"),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.read<AppProvider>().logout();
-                },
-              ),
-
-              // ── Close Button ──
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: ElevatedButton(
