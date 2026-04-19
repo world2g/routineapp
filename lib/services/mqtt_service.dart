@@ -36,7 +36,7 @@ class MqttService {
 
   // Callbacks the AppProvider (or UI) can listen to
   void Function(WatchStatus)? onWatchStatusChanged;
-  void Function(int taskId)? onTaskDoneFromWatch;
+  void Function(String taskId)? onTaskDoneFromWatch;
 
   // ── Connect ──────────────────────────────────────────────────────────────
   Future<bool> connect(String userId) async {
@@ -100,9 +100,7 @@ class MqttService {
 
     final payload = jsonEncode({
       'date': date,
-      'tasks': tasks
-          .map((t) => {'id': t.id, 'time': t.time, 'title': t.title})
-          .toList(),
+      'tasks': tasks.map((t) => t.toJson()).toList(),
     });
 
     _publish('routine/user/$_userId/tasks', payload, retain: true);
@@ -147,7 +145,7 @@ class MqttService {
       if (topic == 'routine/user/$_userId/task/done') {
         try {
           final data   = jsonDecode(payload) as Map<String, dynamic>;
-          final taskId = data['task_id'] as int;
+          final taskId = data['task_id'] as String;
           onTaskDoneFromWatch?.call(taskId);
         } catch (_) {}
       }
