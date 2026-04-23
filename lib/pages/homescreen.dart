@@ -278,7 +278,7 @@ class TaskTile extends StatelessWidget {
     final provider = context.read<AppProvider>();
  
     return Dismissible(
-      key:       ValueKey(task.taskId),
+      key:       ValueKey(task.id),
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,

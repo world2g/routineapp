@@ -126,8 +126,8 @@ class AppProvider extends ChangeNotifier {
   Future<void> toggleTaskDone(Task task) async {
     final updated = task.copyWith(isDone: !task.isDone);
     await _db.updateTask(updated);
-    if (updated.isDone && task.taskId != null) {
-      await NotificationService.cancelTaskReminder(task.taskId!);
+    if (updated.isDone && task.id != null) {
+      await NotificationService.cancelTaskReminder(task.id!);
     }
     _tasks = await _db.getTasksForDate(_user!.id, todayDate);
     notifyListeners();
@@ -135,9 +135,9 @@ class AppProvider extends ChangeNotifier {
   }
  
   Future<void> deleteTask(Task task) async {
-    if (task.taskId == null) return;
-    await _db.deleteTask(_user!.id, task.taskId!);
-    await NotificationService.cancelTaskReminder(task.taskId!);
+    if (task.id == null) return;
+    await _db.deleteTask(_user!.id, task.id!);
+    await NotificationService.cancelTaskReminder(task.id!);
     _tasks = await _db.getTasksForDate(_user!.id, todayDate);
     notifyListeners();
     _mqtt.publishTasks(_tasks, todayDate);
@@ -217,7 +217,7 @@ class AppProvider extends ChangeNotifier {
  
     _mqtt.onTaskDoneFromWatch = (taskId) async {
       final task = _tasks.cast<Task?>()
-          .firstWhere((t) => t?.taskId == taskId, orElse: () => null);
+          .firstWhere((t) => t?.id == taskId, orElse: () => null);
       if (task != null && !task.isDone) await toggleTaskDone(task);
     };
  
