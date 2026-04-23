@@ -35,7 +35,7 @@ class Task {
     String? frequency,
   }) =>
       Task(
-        taskId:          id          ?? this.taskId,
+        taskId:          id          ?? taskId,
         userId:      userId      ?? this.userId,
         title:       title       ?? this.title,
         startTime:   startTime   ?? this.startTime,

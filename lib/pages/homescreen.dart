@@ -258,7 +258,7 @@ class ScheduleSection extends StatelessWidget {
           Expanded(
             child: ListView.separated(
               itemCount:        tasks.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder:      (ctx, i) => TaskTile(task: tasks[i]),
             ),
           ),
