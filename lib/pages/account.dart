@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import 'linked_devices_screen.dart';
-import 'notifications.dart';
  
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -71,17 +70,7 @@ class AccountScreen extends StatelessWidget {
           ),
           const Divider(height: 1),
  
-          // ── Notifications ────────────────────────────────────────────────
-          _SettingsTile(
-            icon:     Icons.notifications_outlined,
-            title:    'Notifications',
-            subtitle: provider.notificationsEnabled ? 'Enabled' : 'Disabled',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const NotificationCentre()),
-            ),
-          ),
- 
+           
           const SizedBox(height: 32),
  
           // ── Sign out ─────────────────────────────────────────────────────

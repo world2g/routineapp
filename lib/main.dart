@@ -6,7 +6,6 @@ import 'services/notification_service.dart';
 import 'pages/homescreen.dart';
 import 'pages/event.dart';
 import 'pages/analytics.dart';
-import 'pages/notifications.dart';
 import 'pages/login_screen.dart';
 import 'pages/account.dart';
  
