@@ -93,11 +93,17 @@ class AppProvider extends ChangeNotifier {
  
   // ── Tasks ───────────────────────────────────────────────────────────────────
   Future<void> loadTodayTasks() async {
-    if (_user == null) return;
-    _tasks = await _db.getTasksForDate(_user!.id, todayDate);
-    notifyListeners();
-    _mqtt.publishTasks(_tasks, todayDate);
+  if (_user == null) return;
+
+  _tasks = await _db.getTasksForDate(_user!.id, todayDate);
+  notifyListeners();
+
+  _mqtt.publishTasks(_tasks, todayDate);
+
+  if (_notificationsEnabled) {
+    await _rescheduleAllNotifications(); // 🔥 ensures consistency
   }
+}
  
   Future<void> addTask({
     required String title,
@@ -123,16 +129,20 @@ class AppProvider extends ChangeNotifier {
     await loadTodayTasks();
   }
  
-  Future<void> toggleTaskDone(Task task) async {
-    final updated = task.copyWith(isDone: !task.isDone);
-    await _db.updateTask(updated);
-    if (updated.isDone && task.id != null) {
-      await NotificationService.cancelTaskReminder(task.id!);
-    }
-    _tasks = await _db.getTasksForDate(_user!.id, todayDate);
-    notifyListeners();
-    _mqtt.publishTasks(_tasks, todayDate);
+Future<void> toggleTaskDone(Task task) async {
+  final updated = task.copyWith(isDone: !task.isDone);
+  await _db.updateTask(updated);
+
+  if (updated.isDone && task.id != null) {
+    await NotificationService.cancelTaskReminder(task.id!);
+  } else if (!updated.isDone && _notificationsEnabled) {
+    await NotificationService.scheduleTaskReminder(updated);
   }
+
+  _tasks = await _db.getTasksForDate(_user!.id, todayDate);
+  notifyListeners();
+  _mqtt.publishTasks(_tasks, todayDate);
+}
  
   Future<void> deleteTask(Task task) async {
     if (task.id == null) return;
@@ -172,14 +182,28 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
  
-  Future<void> toggleNotifications(bool enabled) async {
-    if (_user == null) return;
-    _notificationsEnabled = enabled;
-    await _db.setNotificationsEnabled(_user!.id, enabled);
-    if (!enabled) await NotificationService.cancelAll();
-    notifyListeners();
+Future<void> toggleNotifications(bool enabled) async {
+  if (_user == null) return;
+
+  _notificationsEnabled = enabled;
+  await _db.setNotificationsEnabled(_user!.id, enabled);
+
+  await _rescheduleAllNotifications(); 
+
+  notifyListeners();
+}
+
+  Future<void> _rescheduleAllNotifications() async {
+  await NotificationService.cancelAll();
+
+  if (!_notificationsEnabled) return;
+
+  for (final task in _tasks) {
+    if (!task.isDone && task.id != null) {
+      await NotificationService.scheduleTaskReminder(task);
+    }
   }
- 
+} 
   // ── Private ─────────────────────────────────────────────────────────────────
   Future<void> _afterLogin() async {
     await Future.wait([

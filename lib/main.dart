@@ -76,90 +76,107 @@ class HomePage extends StatefulWidget {
  
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
- 
+
   static const List<Widget> _pages = [
     HomeScreen(),
     AddTaskScreen(),
     AnalyticsScreen(),
   ];
- 
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
- 
+
     return Scaffold(
       appBar: AppBar(
-        title:       const Text('Routine Planner'),
+        title: const Text('Routine Planner'),
         centerTitle: true,
-        actions: [
-          // Notifications bell
-          IconButton(
-            icon:      const Icon(Icons.notifications_none),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const NotificationCentre()),
+      ),
+
+      // ── Drawer ─────────────────────────────────────────────
+      drawer: Drawer(
+        child: Column(
+          children: [
+            // Header
+            UserAccountsDrawerHeader(
+              accountName: Text(provider.user?.username ?? ''),
+              accountEmail: const Text(''), // optional
+              currentAccountPicture: const CircleAvatar(
+                child: Icon(Icons.person),
+              ),
             ),
-          ),
-          // User / account menu
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.person_outline),
-            onSelected: (value) {
-              if (value == 'account') {
+
+            // ── Notifications Toggle ─────────────────────────
+            SwitchListTile(
+              secondary: Icon(
+                provider.notificationsEnabled
+                    ? Icons.notifications_active_outlined
+                    : Icons.notifications_off_outlined,
+              ),
+              title: const Text(
+                'Push Notifications',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                provider.notificationsEnabled
+                    ? 'Notifications are enabled'
+                    : 'Notifications are disabled',
+                style: const TextStyle(fontSize: 12),
+              ),
+              value: provider.notificationsEnabled,
+              onChanged: (val) {
+                context.read<AppProvider>().toggleNotifications(val);
+              },
+            ),
+
+            const Divider(),
+
+            // ── Account ──────────────────────────────────────
+            ListTile(
+              leading: const Icon(Icons.manage_accounts_outlined),
+              title: const Text('Account'),
+              onTap: () {
+                Navigator.pop(context); // close drawer
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const AccountScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const AccountScreen()),
                 );
-              } else if (value == 'logout') {
+              },
+            ),
+
+            // ── Logout ───────────────────────────────────────
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                Navigator.pop(context);
                 context.read<AppProvider>().logout();
-              }
-            },
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                enabled: false,
-                child: Text(
-                  provider.user?.username ?? '',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              const PopupMenuDivider(),
-              const PopupMenuItem(
-                value: 'account',
-                child: Row(children: [
-                  Icon(Icons.manage_accounts_outlined, size: 18),
-                  SizedBox(width: 8),
-                  Text('Account'),
-                ]),
-              ),
-              const PopupMenuItem(
-                value: 'logout',
-                child: Row(children: [
-                  Icon(Icons.logout, size: 18),
-                  SizedBox(width: 8),
-                  Text('Logout'),
-                ]),
-              ),
-            ],
-          ),
-        ],
+              },
+            ),
+          ],
+        ),
       ),
- 
+
+      // ── Body ───────────────────────────────────────────────
       body: _pages[_currentIndex],
- 
+
+      // ── Bottom Nav ─────────────────────────────────────────
       bottomNavigationBar: NavigationBar(
-        selectedIndex:         _currentIndex,
+        selectedIndex: _currentIndex,
         onDestinationSelected: (i) => setState(() => _currentIndex = i),
         destinations: const [
           NavigationDestination(
-            icon:         Icon(Icons.home_outlined),
+            icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
-            label:        'Home',
+            label: 'Home',
           ),
           NavigationDestination(
-            icon:  Icon(Icons.add_circle_outline),
+            icon: Icon(Icons.add_circle_outline),
             label: 'Add Task',
           ),
           NavigationDestination(
-            icon:  Icon(Icons.analytics_outlined),
+            icon: Icon(Icons.analytics_outlined),
             label: 'Analytics',
           ),
         ],
