@@ -1,4 +1,5 @@
 // lib/services/notification_service.dart
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../models/task.dart';
@@ -22,7 +23,7 @@ class NotificationService {
     );
 
     await _plugin.initialize(
-      settings: const InitializationSettings(android: android, iOS: ios),
+      settings:  InitializationSettings(android: android, iOS: ios),
     );
 
     // Request Android permissions
@@ -40,17 +41,15 @@ class NotificationService {
 
   // ── Schedule Notification ───────────────────────────────────────────────
   static Future<void> scheduleTaskReminder(Task task) async {
-    // Ensure valid ID
-    if (task.taskId == null) return;
+    if (task.id == null) return;
 
     final scheduled = _taskEndDateTime(task);
     if (scheduled == null) return;
 
-    // Do not schedule past notifications
     if (scheduled.isBefore(tz.TZDateTime.now(tz.local))) return;
 
     await _plugin.zonedSchedule(
-      id: _generateId(task.taskId!),
+      id: _generateId(task.id!),
       title: 'Task not completed',
       body: '${task.title} was due at ${task.endTime}',
       scheduledDate: scheduled,
@@ -82,15 +81,13 @@ class NotificationService {
 
   // ── Helpers ─────────────────────────────────────────────────────────────
 
-  /// Deterministic ID generator (stable across sessions)
   static int _generateId(String taskId) {
     return taskId.codeUnits.fold(0, (sum, unit) => sum + unit);
   }
 
-  /// Converts Task date + endTime → TZDateTime
   static tz.TZDateTime? _taskEndDateTime(Task task) {
     try {
-      final dateParts = task.date.split('-');   // yyyy-MM-dd
+      final dateParts = task.date.split('-');    // yyyy-MM-dd
       final timeParts = task.endTime.split(':'); // HH:mm
 
       if (dateParts.length != 3 || timeParts.length != 2) return null;

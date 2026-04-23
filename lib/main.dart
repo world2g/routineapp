@@ -11,8 +11,8 @@ import 'pages/login_screen.dart';
 import 'pages/account.dart';
  
 // ── Replace with your Supabase project values ──────────────────────────────────
-const _supabaseUrl     = 'YOUR_SUPABASE_URL';
-const _supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
+const _supabaseUrl     = 'https://cpoyazafnfsyizpaogsz.supabase.co';
+const _supabaseAnonKey = 'sb_publishable_FtARbf9UWdqwXUnrLfD--g_MAdWwQyE';
 // ──────────────────────────────────────────────────────────────────────────────
  
 void main() async {
