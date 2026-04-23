@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
- 
 class Task {
-  final String? taskId;
+  final String? id;
   final String  userId;
   final String  title;
   final String  startTime;   // "HH:mm"
@@ -12,7 +10,7 @@ class Task {
   final String? frequency;   // 'daily' | 'weekdays' | 'weekly' | 'monthly'
  
   const Task({
-    this.taskId,
+    this.id,
     required this.userId,
     required this.title,
     required this.startTime,
@@ -35,7 +33,7 @@ class Task {
     String? frequency,
   }) =>
       Task(
-        taskId:          id          ?? taskId,
+        id:          id          ?? this.id,
         userId:      userId      ?? this.userId,
         title:       title       ?? this.title,
         startTime:   startTime   ?? this.startTime,
@@ -46,36 +44,33 @@ class Task {
         frequency:   frequency   ?? this.frequency,
       );
  
-  // ── Firestore ───────────────────────────────────────────────────────────────
-  factory Task.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return Task(
-      taskId:          doc.id,
-      userId:      data['userId']      as String,
-      title:       data['title']       as String,
-      startTime:   data['startTime']   as String,
-      endTime:     data['endTime']     as String,
-      date:        data['date']        as String,
-      isDone:      data['isDone']      as bool? ?? false,
-      isRecurring: data['isRecurring'] as bool? ?? false,
-      frequency:   data['frequency']   as String?,
-    );
-  }
+  // ── Supabase ────────────────────────────────────────────────────────────────
+  factory Task.fromJson(Map<String, dynamic> data) => Task(
+        id:          data['id']           as String?,
+        userId:      data['user_id']      as String,
+        title:       data['title']        as String,
+        startTime:   data['start_time']   as String,
+        endTime:     data['end_time']     as String,
+        date:        data['date']         as String,
+        isDone:      data['is_done']      as bool? ?? false,
+        isRecurring: data['is_recurring'] as bool? ?? false,
+        frequency:   data['frequency']    as String?,
+      );
  
-  Map<String, dynamic> toFirestore() => {
-        'userId':      userId,
-        'title':       title,
-        'startTime':   startTime,
-        'endTime':     endTime,
-        'date':        date,
-        'isDone':      isDone,
-        'isRecurring': isRecurring,
+  Map<String, dynamic> toSupabase() => {
+        'user_id':      userId,
+        'title':        title,
+        'start_time':   startTime,
+        'end_time':     endTime,
+        'date':         date,
+        'is_done':      isDone,
+        'is_recurring': isRecurring,
         if (frequency != null) 'frequency': frequency,
       };
  
   // ── MQTT payload ────────────────────────────────────────────────────────────
   Map<String, dynamic> toJson() => {
-        'id':          taskId,
+        'id':          id,
         'title':       title,
         'startTime':   startTime,
         'endTime':     endTime,
@@ -87,6 +82,6 @@ class Task {
  
   @override
   String toString() =>
-      'Task(id: $taskId, title: $title, $startTime–$endTime, date: $date, done: $isDone)';
+      'Task(id: $id, title: $title, $startTime–$endTime, date: $date, done: $isDone)';
 }
  

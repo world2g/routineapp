@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart' show IconData, Icons;
  
 class Device {
   final String    id;
   final String    name;
-  final String    type;      // 'watch' | 'phone' | 'tablet'
+  final String    type;      // 'watch' only (phone/tablet reserved for future)
   final bool      isOnline;
   final DateTime? lastSeen;
  
@@ -16,29 +15,29 @@ class Device {
     this.lastSeen,
   });
  
-  factory Device.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return Device(
-      id:       doc.id,
-      name:     data['name']     as String,
-      type:     data['type']     as String,
-      isOnline: data['isOnline'] as bool? ?? false,
-      lastSeen: (data['lastSeen'] as Timestamp?)?.toDate(),
-    );
-  }
+  // ── Supabase ────────────────────────────────────────────────────────────────
+  factory Device.fromJson(Map<String, dynamic> data) => Device(
+        id:       data['id']        as String,
+        name:     data['name']      as String,
+        type:     data['type']      as String,
+        isOnline: data['is_online'] as bool? ?? false,
+        lastSeen: data['last_seen'] == null
+            ? null
+            : DateTime.parse(data['last_seen'] as String),
+      );
  
-  Map<String, dynamic> toFirestore() => {
-        'name':     name,
-        'type':     type,
-        'isOnline': isOnline,
-        if (lastSeen != null) 'lastSeen': Timestamp.fromDate(lastSeen!),
+  Map<String, dynamic> toSupabase() => {
+        'name':      name,
+        'type':      type,
+        'is_online': isOnline,
+        if (lastSeen != null) 'last_seen': lastSeen!.toIso8601String(),
       };
  
   Device copyWith({
-    String? id,
-    String? name,
-    String? type,
-    bool?   isOnline,
+    String?   id,
+    String?   name,
+    String?   type,
+    bool?     isOnline,
     DateTime? lastSeen,
   }) =>
       Device(
@@ -49,16 +48,6 @@ class Device {
         lastSeen: lastSeen ?? this.lastSeen,
       );
  
-  IconData get icon {
-    switch (type) {
-      case 'phone':  return Icons.smartphone;
-      case 'tablet': return Icons.tablet;
-      default:       return Icons.watch;
-    }
-  }
+  IconData get icon => Icons.watch;
 }
- 
-// Avoid importing flutter/material just for IconData — keep model pure.
-// IconData is a dart:ui type so it's safe here without material import.
-
  
